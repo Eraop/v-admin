@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/v-admin?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+  devtools:
+    restart:
+      enabled: true
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  thymeleaf:
+    cache: false
+    mode: LEGACYHTML5
+
+mybatis:
+  mapper-locations: classpath:/mapper/vadmin/*Mapper.xml
+  type-aliases-package: com.eraop.vadmin.entity
+
+shiro:
+  # shiro redis缓存时长，默认1800秒
+  expireIn: 1800
+  # session 超时时间，默认1800000毫秒
+  sessionTimeout: 1800000
+  # rememberMe cookie有效时长，默认86400秒，即一天
+  cookieTimeout: 86400
+  # 免认证的路径配置，如静态资源，注册页面，验证码请求等
+  anonUrl: /css/**,/js/**,/fonts/**,/img/**,/user/regist,/gifCode,/,/actuator/**,/test/**
+  # 登录 url
+  loginUrl: /login
+  # 登录成功后跳转的 url
+  successUrl: /index
+  # 登出 url
+  logoutUrl: /logout
+  # 未授权跳转 url
+  unauthorizedUrl: /403

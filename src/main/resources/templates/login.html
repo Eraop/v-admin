@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="<%=basePath%>">
+
+    <title>Login</title>
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="This is my page">
+    <!--
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    -->
+    <script th:src="@{/js/jquery-3.3.1.min.js}" type="text/javascript"></script>
+</head>
+
+<body style="margin-left: 500px">
+<h1 style="margin-left: 30px">登录页面----</h1>
+<form action="/login" method="post">
+    用户名 : <input type="text" name="email" id="email"/><br>
+    密码: <input type="password" name="pswd" id="pswd"/><br>
+    <P><input type="checkbox" name="rememberMe" />记住我</P>
+    <input style="margin-left: 100px" type="submit" value="登录"/><input style="left: 50px" onclick="register()"
+                                                                       type="button" value="注册"/>
+</form>
+<h1 style="color: red" th:message></h1>
+</body>
+<script type="text/javascript">
+
+    function register() {
+        location.href = "/permission/userInsert";
+    }
+
+</script>
+</html>
