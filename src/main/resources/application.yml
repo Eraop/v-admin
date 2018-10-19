@@ -20,19 +20,20 @@ mybatis:
   type-aliases-package: com.eraop.vadmin.entity
 
 shiro:
-  # shiro redis缓存时长，默认1800秒
-  expireIn: 1800
-  # session 超时时间，默认1800000毫秒
-  sessionTimeout: 1800000
   # rememberMe cookie有效时长，默认86400秒，即一天
-  cookieTimeout: 86400
+  cookie-timeout: 86400
   # 免认证的路径配置，如静态资源，注册页面，验证码请求等
-  anonUrl: /css/**,/js/**,/fonts/**,/img/**,/user/regist,/gifCode,/,/actuator/**,/test/**
+  anon-url:
+    - /register
+    - /js/*
+    - /css/*
+    - /fonts/*
+    - /images/*
   # 登录 url
-  loginUrl: /login
+  login-url: /login
   # 登录成功后跳转的 url
-  successUrl: /index
+  success-url: /index
   # 登出 url
-  logoutUrl: /logout
+  logout-url: /logout
   # 未授权跳转 url
   unauthorizedUrl: /403

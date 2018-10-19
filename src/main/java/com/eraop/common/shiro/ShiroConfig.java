@@ -1,6 +1,7 @@
 package com.eraop.common.shiro;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -9,22 +10,76 @@ import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Shiro 配置
  * Apache Shiro 核心通过 Filter 来实现，就好像SpringMvc 通过DispachServlet 来主控制一样。
  * 既然是使用 Filter 一般也就能猜到，是通过URL规则来进行过滤和权限校验，所以我们需要定义一系列关于URL的规则和访问权限。
- * Created by sun on 2017-4-2.
+ *
+ * @author sun
+ * @date 2017-4-2
  */
 @Configuration
-@EnableTransactionManagement
-public class ShiroConfiguration {
+public class ShiroConfig {
+    @Value("${shiro.success-url}")
+    private String host;
+    @Autowired
+    private ShiroProperties properties;
+
+    /**
+     * ShiroFilterFactoryBean 处理拦截资源文件问题。
+     * 注意：单独一个ShiroFilterFactoryBean配置是或报错的，因为在
+     * 初始化ShiroFilterFactoryBean的时候需要注入：SecurityManager
+     * Filter Chain定义说明
+     * 1、一个URL可以配置多个Filter，使用逗号分隔
+     * 2、当设置多个过滤器时，全部验证通过，才视为通过
+     * 3、部分过滤器可指定参数，如perms，roles
+     */
+    @Bean(name = "shiroFilter")
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager securityManager) {
+        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
+        // 设置 securityManager
+        factoryBean.setSecurityManager(securityManager);
+        // 登录的 url,如果不设置默认会自动寻找Web工程根目录下的页面
+        factoryBean.setLoginUrl(properties.getLoginUrl());
+        // 登录成功后要跳转的连接
+        factoryBean.setSuccessUrl(properties.getSuccessUrl());
+        factoryBean.setUnauthorizedUrl(properties.getUnauthorizedUrl());
+        loadShiroFilterChain(factoryBean);
+        System.out.println("shiro拦截器工厂类注入成功");
+        return factoryBean;
+    }
+
+
+    /**
+     * 加载ShiroFilter权限控制规则
+     */
+    private void loadShiroFilterChain(ShiroFilterFactoryBean factoryBean) {
+        // 下面这些规则配置最好配置到配置文件中
+        Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
+        // authc：该过滤器下的页面必须验证后才能访问，它是Shiro内置的一个拦截器,所有url都必须认证通过才可以访问
+        // anon：它对应的过滤器里面是空的,什么都没做,可以理解为不拦截,所有url都都可以匿名访问
+        // authc是认证过，user是登录过，如果开启了rememberMe功能的话，user也是可以通过的，而authc通过不了
+        // 设置免认证 url
+        List<String> anonUrls = properties.getAnonUrl();
+        if (anonUrls != null && anonUrls.size() > 0) {
+            for (String url : anonUrls) {
+                filterChainDefinitionMap.put(url, "anon");
+            }
+        }
+        filterChainDefinitionMap.put("/**", "user");
+        factoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+    }
+
+
     /**
      * 用于开启 Thymeleaf 中的 shiro 标签的使用
      *
@@ -36,16 +91,6 @@ public class ShiroConfiguration {
     }
 
 
-    /**
-     * ShiroFilterFactoryBean 处理拦截资源文件问题。
-     * 注意：单独一个ShiroFilterFactoryBean配置是或报错的，因为在
-     * 初始化ShiroFilterFactoryBean的时候需要注入：SecurityManager
-     * <p>
-     * Filter Chain定义说明
-     * 1、一个URL可以配置多个Filter，使用逗号分隔
-     * 2、当设置多个过滤器时，全部验证通过，才视为通过
-     * 3、部分过滤器可指定参数，如perms，roles
-     */
     @Bean
     public EhCacheManager ehCacheManager() {
         EhCacheManager ehcacheManager = new EhCacheManager();
@@ -61,7 +106,7 @@ public class ShiroConfiguration {
     }
 
     @Bean(name = "lifecycleBeanPostProcessor")
-    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
+    public static LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
     }
 
@@ -90,39 +135,6 @@ public class ShiroConfiguration {
         return advisor;
     }
 
-    @Bean(name = "shiroFilter")
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager securityManager) {
-        ShiroFilterFactoryBean factoryBean = new MyShiroFilterFactoryBean();
-        factoryBean.setSecurityManager(securityManager);
-        // 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
-        factoryBean.setLoginUrl("/login");
-        // 登录成功后要跳转的连接
-        factoryBean.setSuccessUrl("/welcome");
-        factoryBean.setUnauthorizedUrl("/403");
-        loadShiroFilterChain(factoryBean);
-        System.out.println("shiro拦截器工厂类注入成功");
-        return factoryBean;
-    }
-
-    /**
-     * 加载ShiroFilter权限控制规则
-     */
-    private void loadShiroFilterChain(ShiroFilterFactoryBean factoryBean) {
-        /**下面这些规则配置最好配置到配置文件中*/
-        Map<String, String> filterChainMap = new LinkedHashMap<String, String>();
-        /** authc：该过滤器下的页面必须验证后才能访问，它是Shiro内置的一个拦截器
-         * org.apache.shiro.web.filter.authc.FormAuthenticationFilter */
-        // anon：它对应的过滤器里面是空的,什么都没做,可以理解为不拦截
-        //authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问
-        filterChainMap.put("/", "user");
-        filterChainMap.put("/permission/userInsert", "anon");
-        filterChainMap.put("/error", "anon");
-        filterChainMap.put("/tUser/insert", "anon");
-        filterChainMap.put("/**", "authc");
-
-        factoryBean.setFilterChainDefinitionMap(filterChainMap);
-    }
-
     //cookie对象;
     @Bean
     public SimpleCookie rememberMeCookie() {
@@ -131,7 +143,7 @@ public class ShiroConfiguration {
         SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
 
         //<!-- 记住我cookie生效时间30天 ,单位秒;-->
-        simpleCookie.setMaxAge(7 * 24 * 60 * 60);
+        simpleCookie.setMaxAge(properties.getCookieTimeout());
         return simpleCookie;
     }
 

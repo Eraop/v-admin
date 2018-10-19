@@ -1,12 +1,13 @@
 package com.eraop.vadmin.controller;
 
+import com.eraop.common.shiro.ShiroProperties;
 import com.eraop.vadmin.entity.SysUser;
 import com.eraop.vadmin.service.ISysUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,9 +25,12 @@ import javax.validation.Valid;
 public class HomeController {
     @Resource
     private ISysUserService sysUserService;
+    @Autowired
+    private ShiroProperties shiroProperties;
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginForm(Model model) {
+
         model.addAttribute("user", new SysUser());
         return "login";
     }
@@ -83,10 +87,10 @@ public class HomeController {
         //验证是否登录成功
         if (currentUser.isAuthenticated()) {
             System.out.println("用户[" + email + "]登录认证通过(这里可以进行一些认证通过后的一些系统参数初始化操作)");
-            //把当前用户放入session
-            Session session = currentUser.getSession();
-            SysUser tUser = sysUserService.getUser(email);
-            session.setAttribute("currentUser", tUser);
+            // 把当前用户放入session
+            // Session session = currentUser.getSession();
+            // SysUser tUser = sysUserService.getUser(email);
+            // session.setAttribute("currentUser", tUser);
             return "redirect:welcome";
         } else {
             token.clear();
@@ -106,5 +110,9 @@ public class HomeController {
     public String unauthorizedRole() {
         System.out.println("------没有权限-------");
         return "errorPermission";
+    }
+    @RequestMapping("/register")
+    public String register() {
+        return "register";
     }
 }
