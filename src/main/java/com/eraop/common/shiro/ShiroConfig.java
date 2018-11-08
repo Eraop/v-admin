@@ -1,7 +1,6 @@
 package com.eraop.common.shiro;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -14,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Shiro 配置
@@ -32,7 +33,7 @@ public class ShiroConfig {
     @Value("${shiro.success-url}")
     private String host;
     @Autowired
-    private ShiroProperties properties;
+    private ShiroProperties shiroProperties;
 
     /**
      * ShiroFilterFactoryBean 处理拦截资源文件问题。
@@ -49,10 +50,10 @@ public class ShiroConfig {
         // 设置 securityManager
         factoryBean.setSecurityManager(securityManager);
         // 登录的 url,如果不设置默认会自动寻找Web工程根目录下的页面
-        factoryBean.setLoginUrl(properties.getLoginUrl());
+        factoryBean.setLoginUrl(shiroProperties.getLoginUrl());
         // 登录成功后要跳转的连接
-        factoryBean.setSuccessUrl(properties.getSuccessUrl());
-        factoryBean.setUnauthorizedUrl(properties.getUnauthorizedUrl());
+        factoryBean.setSuccessUrl(shiroProperties.getSuccessUrl());
+        factoryBean.setUnauthorizedUrl(shiroProperties.getUnauthorizedUrl());
         loadShiroFilterChain(factoryBean);
         System.out.println("shiro拦截器工厂类注入成功");
         return factoryBean;
@@ -69,7 +70,7 @@ public class ShiroConfig {
         // anon：它对应的过滤器里面是空的,什么都没做,可以理解为不拦截,所有url都都可以匿名访问
         // authc是认证过，user是登录过，如果开启了rememberMe功能的话，user也是可以通过的，而authc通过不了
         // 设置免认证 url
-        List<String> anonUrls = properties.getAnonUrl();
+        List<String> anonUrls = shiroProperties.getAnonUrl();
         if (anonUrls != null && anonUrls.size() > 0) {
             for (String url : anonUrls) {
                 filterChainDefinitionMap.put(url, "anon");
@@ -135,6 +136,15 @@ public class ShiroConfig {
         return advisor;
     }
 
+    @Bean
+    public SimpleMappingExceptionResolver resolver() {
+        SimpleMappingExceptionResolver resolver = new SimpleMappingExceptionResolver();
+        Properties properties = new Properties();
+        properties.setProperty("org.apache.shiro.authz.UnauthorizedException", shiroProperties.getUnauthorizedUrl());
+        resolver.setExceptionMappings(properties);
+        return resolver;
+    }
+
     //cookie对象;
     @Bean
     public SimpleCookie rememberMeCookie() {
@@ -143,7 +153,7 @@ public class ShiroConfig {
         SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
 
         //<!-- 记住我cookie生效时间30天 ,单位秒;-->
-        simpleCookie.setMaxAge(properties.getCookieTimeout());
+        simpleCookie.setMaxAge(shiroProperties.getCookieTimeout());
         return simpleCookie;
     }
 

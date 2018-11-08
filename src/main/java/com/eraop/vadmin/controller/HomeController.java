@@ -6,6 +6,7 @@ import com.eraop.vadmin.service.ISysUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +26,7 @@ import javax.validation.Valid;
 public class HomeController {
     @Resource
     private ISysUserService sysUserService;
-    @Autowired
+    @Resource
     private ShiroProperties shiroProperties;
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -35,9 +36,13 @@ public class HomeController {
         return "login";
     }
 
-
     @RequestMapping(value = "/welcome", method = RequestMethod.GET)
     public String welcome() {
+        return "welcome";
+    }
+    @RequiresPermissions("角色列表")
+    @RequestMapping(value = "/roleList", method = RequestMethod.GET)
+    public String roleList() {
         return "welcome";
     }
 
@@ -109,7 +114,7 @@ public class HomeController {
     @RequestMapping("/403")
     public String unauthorizedRole() {
         System.out.println("------没有权限-------");
-        return "errorPermission";
+        return "403";
     }
     @RequestMapping("/register")
     public String register() {

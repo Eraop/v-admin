@@ -29,6 +29,10 @@ shiro:
     - /css/*
     - /fonts/*
     - /images/*
+    - /swagger-ui.html
+    - /v2/api-docs
+    - /swagger-resources/**
+    - /webjars/**
   # 登录 url
   login-url: /login
   # 登录成功后跳转的 url

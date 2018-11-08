@@ -19,6 +19,6 @@ public class ShiroProperties {
     private String loginUrl = "/login";
     private String successUrl = "/index";
     private String logoutUrl = "/logout";
-    private String unauthorizedUrl;
+    private String unauthorizedUrl = "/403";
 
 }
