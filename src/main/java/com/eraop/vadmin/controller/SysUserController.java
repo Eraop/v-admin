@@ -3,13 +3,13 @@ package com.eraop.vadmin.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eraop.common.exceptions.NoResourceFoundException;
+import com.eraop.common.models.ResponseResult;
 import com.eraop.vadmin.entity.SysUser;
 import com.eraop.vadmin.service.ISysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -36,14 +36,14 @@ public class SysUserController {
 
     @ApiOperation(value = "获取用户")
     @RequestMapping(value = "/{id:\\d+}", method = RequestMethod.GET)
-    public SysUser get(@PathVariable(name = "id") long id) throws NoResourceFoundException {
+    public ResponseEntity get(@PathVariable(name = "id") long id) {
         QueryWrapper<SysUser> qw = new QueryWrapper<>();
         qw.eq("id", id);
         SysUser sysUser = sysUserService.getOne(qw);
         if (sysUser == null) {
-            throw new NoResourceFoundException();
+            return ResponseResult.notFound();
         }
-        return sysUser;
+        return ResponseResult.success(sysUser);
     }
 
     @ApiOperation(value = "删除用户", notes = "HTTP请求使用DELETE")

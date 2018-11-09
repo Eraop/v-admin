@@ -135,15 +135,15 @@ public class ShiroConfig {
         advisor.setSecurityManager(securityManager);
         return advisor;
     }
-
-    @Bean
-    public SimpleMappingExceptionResolver resolver() {
-        SimpleMappingExceptionResolver resolver = new SimpleMappingExceptionResolver();
-        Properties properties = new Properties();
-        properties.setProperty("org.apache.shiro.authz.UnauthorizedException", shiroProperties.getUnauthorizedUrl());
-        resolver.setExceptionMappings(properties);
-        return resolver;
-    }
+    //
+    // @Bean
+    // public SimpleMappingExceptionResolver resolver() {
+    //     SimpleMappingExceptionResolver resolver = new SimpleMappingExceptionResolver();
+    //     Properties properties = new Properties();
+    //     properties.setProperty("org.apache.shiro.authz.UnauthorizedException", shiroProperties.getUnauthorizedUrl());
+    //     resolver.setExceptionMappings(properties);
+    //     return resolver;
+    // }
 
     //cookie对象;
     @Bean

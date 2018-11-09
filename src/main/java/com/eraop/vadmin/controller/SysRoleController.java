@@ -3,12 +3,14 @@ package com.eraop.vadmin.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eraop.common.exceptions.NoResourceFoundException;
+import com.eraop.common.models.ResponseResult;
 import com.eraop.vadmin.entity.SysRole;
 import com.eraop.vadmin.service.ISysRoleService;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,15 +46,15 @@ public class SysRoleController {
 
     @ApiOperation(value = "获取角色")
     @RequestMapping(value = "/{id:\\d+}", method = RequestMethod.GET)
+    @RequiresRoles("系统管理员")
     public Object get(@PathVariable(name = "id") long id) throws Exception {
         QueryWrapper<SysRole> qw = new QueryWrapper<>();
         qw.eq("id", id);
         SysRole sysRole = iSysRoleService.getOne(qw);
         if (sysRole == null) {
-            throw new NoResourceFoundException("NOT FOUND");
+            return ResponseResult.forbidden();
         }
-        return sysRole;
-        // super("error.noResourceFound");
+        return ResponseResult.success(sysRole);
     }
 
     @ApiOperation(value = "删除角色", notes = "HTTP请求使用DELETE")

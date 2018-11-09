@@ -14,6 +14,9 @@ spring:
   thymeleaf:
     cache: false
     mode: LEGACYHTML5
+  # i18n
+  messages:
+    basename: i18n/messages
 
 mybatis:
   mapper-locations: classpath:/mapper/vadmin/*Mapper.xml

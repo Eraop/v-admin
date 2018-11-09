@@ -2,6 +2,7 @@
 <html xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <title>欢迎!</title>
+    <script src="/js/jquery-3.3.1.min.js"></script>
 </head>
 <body style="text-align: center">
 <h1>用户列表--<a href="/logout">退出登录</a></h1>
@@ -19,6 +20,17 @@
 <shiro:hasPermission name="用户列表">具有用户列表权限用户显示此内容<br/></shiro:hasPermission>
 <shiro:hasPermission name="在线用户">具有在线用户权限用户显示此内容<br/></shiro:hasPermission>
 <shiro:lacksPermission name="角色分配保存">不具有角色分配保存权限的用户显示此内容 <br/></shiro:lacksPermission>
-
+<select id="LanguageOptions" class="form-control input-sm">
+    <option value="en_US">English</option>
+    <option value="zh_CN" selected>简体中文</option>
+</select>
+<script>
+    // language
+    $('#LanguageOptions').change(function(){
+        var lang = $(this).val();
+        document.cookie = 'LOCALE=' + lang + ';path=/';
+        location.reload();
+    });
+</script>
 </body>
 </html>
