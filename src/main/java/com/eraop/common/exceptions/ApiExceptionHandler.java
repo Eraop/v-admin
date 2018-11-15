@@ -1,18 +1,14 @@
 package com.eraop.common.exceptions;
 
 import com.eraop.common.models.ResponseResult;
-import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.AuthorizationException;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.BindException;
 
 /**
  * @author weiyi
